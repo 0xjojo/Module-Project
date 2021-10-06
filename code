@@ -1,0 +1,74 @@
+#include "mbed.h"
+
+#define BUTTON_1 p5
+#define BUTTON_2 p6
+#define BUTTON_3 p7
+#define BUTTON_4 p8
+
+#define RED_LED p9
+#define YELLOW_LED p10
+#define BLUE_LED p11
+
+
+// Define the Input pins
+DigitalIn Start(p5); //start control start = 1
+DigitalIn Guard(p6); //Machine guard sensor guard closed = 1
+DigitalIn Temp(p7); //Temprature sensor exess temp = 1
+DigitalIn Stop(p8); //stop control stop = 1
+
+//Define the Output pins
+DigitalOut Ready(p9); //Motor is ready to run 
+DigitalOut Running(p10); //Motor is running 
+DigitalOut Fault(p11); // Guard is open while motor is running 
+DigitalOut Exces(p12); //Excess temp
+
+
+//Define Input/Output buses
+	//Write your code here
+
+void ControlLED_DigitalIO ();
+void ControlLED_BusIO ();
+
+
+int main()
+{
+    while(1) {
+        ControlLED_DigitalIO ();
+        while ((Guard==0)||(Temp==1)){
+            Running = Fault = Exces = 0;//clear all displays
+            Ready =! Ready ;//flash ready
+            wait(0.2);
+        }
+        Ready = 1; //motor is ready to run 
+        // ControlLED_BusIO ();
+        while (Start)
+        wait(0.01);
+        while ((Guard==1)&&(Temp==0)&&(Stop==0)){
+            Ready =0;
+            Running=1;
+            wait(0.2);
+            if(Guard==0){
+                Running = 0;
+                Fault= 1;
+                wait(0.5);
+                Fault=0;
+            }
+            if(Temp==1){
+                Running =0;
+                Exces=1;
+                wait(0.5);
+                Exces=0;
+            }
+            if(Stop==1)
+            Running=0;
+        }
+    }
+}
+
+void ControlLED_DigitalIO (){
+          //Write your code here
+}
+
+void ControlLED_BusIO (){
+    //Write your code here
+}
